@@ -27,9 +27,9 @@ const deleteStudent = async (studentId) => {
 const addOrEditStudent = async (obj, studentId = 0) => {
  console.log(obj);
  const [[[{ affectedRows }]]] = await db.query(
-  'CALL usp_student_add_or_edit(?, ?, ?, ?, ?, ?, ?, ?, ?)',
+  'CALL usp_student_add_or_edit(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
   [
-   studentId,
+   obj.id,
    obj.track_id,
    obj.first_name,
    obj.last_name,
@@ -38,12 +38,18 @@ const addOrEditStudent = async (obj, studentId = 0) => {
    obj.sex,
    obj.email,
    obj.phone,
+   obj.year_level,
+   obj.age,
+   obj.section_id,
   ]
  );
 
  return affectedRows;
 };
 
-export default getAllStudents;
-
-export { getStudentById, deleteStudent, addOrEditStudent };
+export default {
+ getAllStudents,
+ getStudentById,
+ deleteStudent,
+ addOrEditStudent,
+};

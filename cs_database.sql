@@ -116,3 +116,68 @@ CREATE TABLE `track` (
   PRIMARY KEY (`id`),
   CONSTRAINT `FKtrack_id` FOREIGN KEY (`id`) REFERENCES `student` (`track_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+
+
+-- STORED PROCEDURES-------------------------------------------------------------------------------------------------
+
+DELIMITER $$
+CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_student_add_or_edit`(
+    IN _id INT,
+    IN _track_id INT,
+    IN _first_name VARCHAR(45),
+    IN _last_name VARCHAR(45),
+    IN _nationality VARCHAR(45),
+    IN _birthday DATE,
+    IN _gender ENUM('Male', 'Female'),
+    IN _email VARCHAR(100),
+    IN _phone VARCHAR(45),
+    IN _year_level int,
+    IN _age int,
+    IN _section_id VARCHAR(10)
+)
+BEGIN
+-- Insert new student or update existing one
+    INSERT INTO Student (id, track_id, first_name, last_name, nationality, birthday, gender, email, phone, year_level, age, section_id)
+    VALUES (_id, _track_id, _first_name, _last_name, _nationality, _birthday, _gender, _email, _phone, _year_level, _age, _section_id)
+    ON DUPLICATE KEY UPDATE
+        track_id = VALUES(track_id),
+        first_name = VALUES(first_name),
+        last_name = VALUES(last_name),
+        nationality = VALUES(nationality),
+        birthday = VALUES(birthday),
+        gender = VALUES(gender),
+        email = VALUES(email),
+        phone = VALUES(phone),
+        year_level = VALUES(year_level),
+        age = VALUES(age),
+        section_id = VALUES(section_id);
+
+    SELECT ROW_COUNT() AS 'affectedRows';
+END$$
+DELIMITER ;
+
+
+
+DELIMITER $$
+USE `csstudentdb`$$
+CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_faculty_add_or_edit`(
+    IN _id INT,
+    IN _first_name VARCHAR(45),
+    IN _last_name VARCHAR(45)
+)
+BEGIN
+    INSERT INTO Student (id, first_name, last_name)
+    VALUES (_id, _first_name, _last_name)
+    ON DUPLICATE KEY UPDATE
+        first_name = VALUES(first_name),
+        last_name = VALUES(last_name),
+
+
+    SELECT ROW_COUNT() AS 'affectedRows';
+END$$
+END$$
+
+DELIMITER ;

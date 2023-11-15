@@ -6,9 +6,9 @@
 
 import express from 'express';
 import db from '../db.js';
-import service from './services/student.service.js';
+import service from '../services/student.service.js';
 
-router = express.Router();
+const router = express.Router();
 
 // http://127.0.0.1:3000/api/students/
 router.get('/', async (req, res) => {

@@ -9,24 +9,27 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import db from './db.js';
-import studentRoutes from './services/student.service.js';
+import studentRoutes from './controllers/student.controller.js';
+import facultyRoutes from './controllers/faculty.controller.js';
 import 'express-async-errors';
 
 const app = express();
 
 // Middleware
-app.use(bodyParser.json());
+app.use(express.json());
 app.use('/api/students', studentRoutes);
+app.use('/api/faculties', facultyRoutes);
 app.use((err, req, res, next) => {
  console.log(err);
  res.status(err.status).send('Something went wrong!');
 });
 
 // Test db connection
+const port = process.env.PORT || 3000;
 db
  .query('SELECT 1')
  .then((data) => {
   console.log('db connection successful');
-  app.listen(3000, () => console.log('Server listening on port 3000!'));
+  app.listen(port, () => console.log(`Server listening on port ${port}!`));
  })
  .catch((err) => console.log('db connection failed', err));
