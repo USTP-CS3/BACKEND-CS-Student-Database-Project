@@ -1,108 +1,159 @@
-// import fs from "fs";
 import PDFParser from 'pdf2json';
 
-const getStudentInfo = (filePath) => {
- const pdfParser = new PDFParser();
+//
+// Main (self-executing async function)
+(async function main() {
+ const filePath = './cor-pdfs/BALILING_COMSCI-LEAD.pdf';
 
- const assertTreeStructure = (pdfData) => {
-  const textData = pdfData['Pages'][0]['Texts'];
+ try {
+  const output = await getCorInfo(filePath);
 
-  console.log(textData);
+  // Uncomment this to show verbose data
+  console.log(JSON.stringify(output, null, 4));
+ } catch (error) {
+  console.error('Error in main:', error);
+ }
+})();
 
-  const studentInfo = [];
-  const scheduleContainer = [];
-  let schedule = {};
-  let counter = 0;
+//
+// Public Functions
 
-  for (const [index, text] of textData.entries()) {
-   const decodeText = decodeURIComponent(text['R'][0]['T']);
+async function getCorInfo(filePath) {
+ try {
+  return await _getCorInfo(filePath);
+ } catch (error) {
+  console.error(error);
+  throw error;
+ }
+}
 
-   if (index < 32) studentInfo.push(decodeText);
-   else if (index > 38) {
-    const sequence = [
-     'instructor',
-     'subject',
-     'lecture',
-     'laboratory',
-     'credit',
-     'datetime',
-     'code',
-     'section',
-    ];
-    schedule[sequence[counter]] = decodeText;
-    counter++;
+//
+// Private Functions
 
-    // get row
-    if (counter > 7) {
-     counter = 0;
-     scheduleContainer.push(schedule);
-     schedule = {};
-    }
+function _getCorInfo(filePath) {
+ return new Promise((resolve, reject) => {
+  const pdfParser = new PDFParser();
 
-    // TODO: check if row has multiple dates
+  pdfParser.loadPDF(filePath);
+  pdfParser.on('pdfParser_dataError', reject);
+  pdfParser.on('pdfParser_dataReady', (pdfData) => {
+   const data = _getPdfTextArray(pdfData);
+   const studentData = _getStudentData(data);
+   const subjectData = _getSubjectData(data);
+   resolve({ studentData, subjectData });
+  });
+ });
+}
 
-    // TODO: include total lab,lec,credit units
-    if (decodeText.toLowerCase().startsWith('total unit')) {
-     break;
-    }
-   }
+function _getPdfTextArray(pdfData) {
+ // select first page text data
+ const pageObject = pdfData['Pages'][0]['Texts'];
+ // iterate text object and append to text array
+ const data = [];
+
+ let customIndex = 0;
+ for (const [fixedIndex, textObject] of pageObject.entries()) {
+  const text = decodeURIComponent(textObject['R'][0]['T']);
+
+  // if no scholarship, push 'None' to the array
+  if (customIndex == 26 && text == 'Contact #:') {
+   data.push('N/A');
+   customIndex++; // customIndex will be 27
   }
 
-  const studentInfoDict = {
-   id: studentInfo[16],
-   name: studentInfo[17],
-   campus: studentInfo[1],
-   gender: studentInfo[18],
-   age: studentInfo[19],
-   college: studentInfo[20],
-   department: studentInfo[21],
-   major: studentInfo[22],
-   year_level: studentInfo[23],
-   curriculum: studentInfo[24],
-   scholarship: studentInfo[26],
-   nationality: studentInfo[30],
-   contact: studentInfo[31],
-   document_title: studentInfo[0],
-   registration_no: studentInfo[15],
-   academic_year: studentInfo[24],
+  data.push(text);
+  customIndex++;
+ }
+ return data;
+}
 
-   // 32 > subject, units, schedules
-  };
-
-  // temporary fixed-column indentation
-  let maxKeyLength = Math.max(
-   ...Object.keys(studentInfoDict).map((key) => key.length)
-  );
-  for (let key in studentInfoDict) {
-   let spacing = ' '.repeat(maxKeyLength - key.length + 1);
-   console.log(key + ':' + spacing, studentInfoDict[key]);
-  }
-
-  for (let schedule of scheduleContainer) {
-   console.log('\n-----------------------------');
-   let maxKeyLength = Math.max(
-    ...Object.keys(schedule).map((key) => key.length)
-   );
-   for (let key in schedule) {
-    let spacing = ' '.repeat(maxKeyLength - key.length + 1);
-    console.log(key + ':' + spacing, schedule[key]);
-   }
-   console.log('-----------------------------\n');
-  }
+function _getStudentData(data) {
+ return {
+  // index <= 31 is student data
+  document_title: data[0],
+  campus: data[1],
+  registration_no: data[15],
+  id: data[16],
+  name: data[17],
+  gender: data[18],
+  age: data[19],
+  college: data[20],
+  department: data[21],
+  major: data[22],
+  year_level: data[23],
+  curriculum: data[24],
+  academic_year: data[25],
+  scholarship: data[26],
+  nationality: data[30],
+  contact: data[31],
+  // index >= 39 is schedules data
  };
+}
 
- pdfParser.on('pdfParser_dataError', (errData) =>
-  console.error(errData.parserError)
- );
- pdfParser.on('pdfParser_dataReady', (pdfData) => assertTreeStructure(pdfData));
- pdfParser.loadPDF(filePath);
-};
+function _getSubjectData(data) {
+ // all index greater than 38 is subject, units, schedules data
+ const subjects = [];
+ for (let i = 39; i < data.length; i += 8) {
+  // check if first entry is a schedule, then append to previous object's schedule
+  const patternOfSchedule =
+   /((S|M|T|W|Th|F)*(\s\d\d?:\d\d\s(AM|PM)))\s-(\s\d\d?:\d\d\s(AM|PM))/g;
+  const isScheduleOfPreviousSubject = data[i].match(patternOfSchedule);
 
-getStudentInfo('./Assets/joxyle.pdf');
+  const patternOfTotalUnit = /[Tt]otal\s[Uu]nit(\(s\))?/g;
+  const isLastSubject = data[i].match(patternOfTotalUnit);
 
-// fs.writeFile("output.json", jsonData, function(err) {
-//     if(err) {
-//         return console.log(err);
-//     }
-//     console.log("The file was saved!");
-// });
+  if (isScheduleOfPreviousSubject) {
+   subjects[subjects.length - 1].schedule.push(
+    _getRegexString(data[i], patternOfSchedule).result
+   );
+
+   subjects[subjects.length - 1].room.push(
+    _getRegexString(data[i], patternOfSchedule).residue
+   );
+
+   subjects[subjects.length - 1].instructor.push(data[i + 1]);
+
+   i -= 6; // proceed to next iteration
+  }
+
+  // check if its there are no more subject
+  else if (isLastSubject) {
+   break;
+  }
+
+  // otherwise, append the new subject
+  else {
+   subjects.push({
+    instructor: [data[i]],
+    subject: data[i + 1],
+    lecture: data[i + 2],
+    laboratory: data[i + 3],
+    credit: data[i + 4],
+    code: data[i + 6],
+    section: data[i + 7],
+
+    schedule: [_getRegexString(data[i + 5], patternOfSchedule).result],
+
+    room: [_getRegexString(data[i + 5], patternOfSchedule).residue],
+   });
+  }
+ }
+
+ return subjects;
+}
+
+function _getRegexString(text, regex) {
+ const match = text.match(regex);
+
+ if (match) {
+  // only get the first match
+  // string that matches the regex
+  const result = match[0];
+
+  // string that does not match the regex
+  const residue = text.replace(result, '').trim();
+  return { result, residue };
+ } else {
+  console.error('Something went wrong in _getRegexString()', text, regex);
+ }
+}
