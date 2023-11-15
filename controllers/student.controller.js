@@ -1,8 +1,14 @@
-const express = require('express');
-const router = express.Router();
-const db = require('../db');
+// const express = require('express');
+// const router = express.Router();
+// const db = require('../db');
 
-const service = require('../services/student.service');
+// const service = require('../services/student.service');
+
+import express from 'express';
+import db from '../db.js';
+import service from './services/student.service.js';
+
+router = express.Router();
 
 // http://127.0.0.1:3000/api/students/
 router.get('/', async (req, res) => {
@@ -45,4 +51,5 @@ router.put('/:id', async (req, res) => {
  }
 });
 
-module.exports = router;
+// module.exports = router;
+export default router;

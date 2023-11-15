@@ -1,12 +1,14 @@
-const db = require('../db');
+// const db = require('../db');
 
-module.exports.getAllStudents = async () => {
+import db from '../db.js';
+
+const getAllStudents = async () => {
  const [rows] = await db.query('SELECT * FROM student');
 
  return rows;
 };
 
-module.exports.getStudentById = async (studentId) => {
+const getStudentById = async (studentId) => {
  const [[rows]] = await db.query('SELECT * FROM student WHERE id = ?', [
   studentId,
  ]);
@@ -14,7 +16,7 @@ module.exports.getStudentById = async (studentId) => {
  return rows;
 };
 
-module.exports.deleteStudent = async (studentId) => {
+const deleteStudent = async (studentId) => {
  const [{ affectedRows }] = await db.query('DELETE FROM student WHERE id = ?', [
   studentId,
  ]);
@@ -22,7 +24,7 @@ module.exports.deleteStudent = async (studentId) => {
  return affectedRows;
 };
 
-module.exports.addOrEditStudent = async (obj, studentId = 0) => {
+const addOrEditStudent = async (obj, studentId = 0) => {
  console.log(obj);
  const [[[{ affectedRows }]]] = await db.query(
   'CALL usp_student_add_or_edit(?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -41,3 +43,7 @@ module.exports.addOrEditStudent = async (obj, studentId = 0) => {
 
  return affectedRows;
 };
+
+export default getAllStudents;
+
+export { getStudentById, deleteStudent, addOrEditStudent };

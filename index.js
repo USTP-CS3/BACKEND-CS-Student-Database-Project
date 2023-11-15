@@ -1,11 +1,18 @@
-const express = require('express');
+// const express = require('express');
+// const bodyParser = require('body-parser');
+// require('express-async-errors');
+
+// const db = require('./db');
+
+// const studentRoutes = require('./controllers/student.controller');
+
+import express from 'express';
+import bodyParser from 'body-parser';
+import db from './db.js';
+import studentRoutes from './services/student.service.js';
+import 'express-async-errors';
+
 const app = express();
-const bodyParser = require('body-parser');
-require('express-async-errors');
-
-const db = require('./db');
-
-const studentRoutes = require('./controllers/student.controller');
 
 // Middleware
 app.use(bodyParser.json());

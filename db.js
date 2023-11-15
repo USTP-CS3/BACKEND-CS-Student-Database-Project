@@ -1,13 +1,15 @@
-const mysql = require('mysql2/promise');
+// const mysql = require('mysql2/promise');
+// require('dotenv').config();
+
+import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const mysqlPool = mysql.createPool({
- host: '127.0.0.1',
- user: 'root',
- password: 'root',
- database: 'csstudentdb',
- waitForConnections: true,
- connectionLimit: 10,
- queueLimit: 0,
+ host: process.env.MYSQL_HOST,
+ user: process.env.MYSQL_USER,
+ password: process.env.MYSQL_PASSWORD,
+ database: process.env.MYSQL_DATABASE,
 });
 
 async function executeQuery(sql, values) {
@@ -23,6 +25,9 @@ async function executeQuery(sql, values) {
  }
 }
 
-// Export the pool and executeQuery function
-module.exports = mysqlPool;
-module.exports.executeQuery = executeQuery;
+// // Export the pool and executeQuery function
+// module.exports = mysqlPool;
+// module.exports.executeQuery = executeQuery;
+
+export default mysqlPool;
+export { executeQuery };
