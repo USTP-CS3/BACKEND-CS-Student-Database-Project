@@ -238,3 +238,21 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+
+-- Section Table PROCEDURE
+DELIMITER $$
+CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_section_add_or_edit`(
+    IN _id VARCHAR(10),
+    IN _department_id INT
+    )
+BEGIN
+    INSERT INTO section (id, department_id)
+    VALUES (_id, _department_id)
+    ON DUPLICATE KEY UPDATE
+      department_id = VALUES(department_id);
+
+    SELECT ROW_COUNT() AS 'affectedRows';
+END$$
+
+DELIMITER ;
