@@ -15,6 +15,7 @@ import departmentRoutes from './controllers/department.controller.js';
 import sectionRoutes from './controllers/section.controller.js';
 import buildingRoutes from './controllers/building.controller.js';
 import roomRoutes from './controllers/room.controller.js';
+import trackRoutes from './controllers/track.controller.js';
 import 'express-async-errors';
 
 const app = express();
@@ -28,6 +29,7 @@ app.use('/api/departments', departmentRoutes);
 app.use('/api/sections', sectionRoutes);
 app.use('/api/buildings', buildingRoutes);
 app.use('/api/rooms', roomRoutes);
+app.use('/api/tracks', trackRoutes);
 app.use((err, req, res, next) => {
  console.log(err);
  res.status(err.status).send('Something went wrong!');
