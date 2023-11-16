@@ -162,18 +162,17 @@ DELIMITER ;
 
 
 DELIMITER $$
-USE `csstudentdb`$$
 CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_faculty_add_or_edit`(
     IN _id INT,
     IN _first_name VARCHAR(45),
     IN _last_name VARCHAR(45)
 )
 BEGIN
-    INSERT INTO Student (id, first_name, last_name)
+    INSERT INTO faculty (id, first_name, last_name)
     VALUES (_id, _first_name, _last_name)
     ON DUPLICATE KEY UPDATE
         first_name = VALUES(first_name),
-        last_name = VALUES(last_name),
+        last_name = VALUES(last_name);
 
 
     SELECT ROW_COUNT() AS 'affectedRows';
