@@ -38,7 +38,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
- await service.addOrEditStudent(req.body);
+ await service.addOrEditStudent(req.body, req.body.id);
  res.status(201).send('Student Record Added Successfully');
 });
 

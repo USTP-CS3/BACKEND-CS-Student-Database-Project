@@ -26,10 +26,11 @@ const deleteStudent = async (studentId) => {
 
 const addOrEditStudent = async (obj, studentId = 0) => {
  console.log(obj);
+ console.log(studentId);
  const [[[{ affectedRows }]]] = await db.query(
   'CALL usp_student_add_or_edit(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
   [
-   obj.id,
+   studentId,
    obj.track_id,
    obj.first_name,
    obj.last_name,
