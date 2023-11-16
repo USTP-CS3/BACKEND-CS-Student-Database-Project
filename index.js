@@ -13,6 +13,7 @@ import studentRoutes from './controllers/student.controller.js';
 import facultyRoutes from './controllers/faculty.controller.js';
 import scheduleRoutes from './controllers/schedule.controller.js';
 import departmentRoutes from './controllers/department.controller.js';
+import sectionRoutes from './controllers/section.controller.js';
 import 'express-async-errors';
 
 const app = express();
@@ -23,6 +24,7 @@ app.use('/api/students', studentRoutes);
 app.use('/api/faculties', facultyRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api/departments', departmentRoutes);
+app.use('/api/sections', sectionRoutes);
 app.use((err, req, res, next) => {
  console.log(err);
  res.status(err.status).send('Something went wrong!');
