@@ -26,7 +26,7 @@ const deleteFaculty = async (facultyId) => {
 const addOrEditFaculty = async (obj, facultyId = 0) => {
  const [[[{ affectedRows }]]] = await db.query(
   'CALL usp_faculty_add_or_edit(?,?,?)',
-  [obj.id, obj.first_name, obj.last_name]
+  [facultyId, obj.first_name, obj.last_name]
  );
 
  return affectedRows;
