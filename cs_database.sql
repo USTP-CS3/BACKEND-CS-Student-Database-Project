@@ -245,7 +245,7 @@ DELIMITER $$
 CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_section_add_or_edit`(
     IN _id VARCHAR(10),
     IN _department_id INT
-    )
+)
 BEGIN
     INSERT INTO section (id, department_id)
     VALUES (_id, _department_id)
@@ -256,3 +256,42 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+
+-- Building Table PROCEDURE
+DELIMITER $$
+CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_building_add_or_edit`(
+    IN _id INT,
+    IN _name VARCHAR(255)
+)
+BEGIN
+    INSERT INTO building (id, name)
+    VALUES (_id, _name)
+    ON DUPLICATE KEY UPDATE
+      name = VALUES(name);
+
+    SELECT ROW_COUNT() AS 'affectedRows';
+END$$
+
+DELIMITER ;
+
+
+
+-- Room Table PROCEDURE
+
+CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_room_add_or_edit`(
+    IN _id VARCHAR(10),
+    IN _building_id INT,
+    IN _floor INT,
+    IN _number INT
+)
+BEGIN
+    INSERT INTO building (id, building_id, floor, number)
+    VALUES (_id, _building_id, _floor, _number)
+    ON DUPLICATE KEY UPDATE
+      building_id = VALUES(building_id),
+      floor = VALUES(floor),
+      number = VALUES(number);
+      
+    SELECT ROW_COUNT() AS 'affectedRows';
+END$$
