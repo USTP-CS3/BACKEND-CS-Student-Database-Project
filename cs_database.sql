@@ -11,7 +11,6 @@ CREATE TABLE `building` (
 
 CREATE TABLE `department` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `chairman_id` int DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `college` varchar(255) DEFAULT NULL,
   `campus` varchar(255) DEFAULT NULL,
@@ -123,6 +122,9 @@ CREATE TABLE `track` (
 
 -- STORED PROCEDURES-------------------------------------------------------------------------------------------------
 
+
+
+-- Student Table Procedure
 DELIMITER $$
 CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_student_add_or_edit`(
     IN _id INT,
@@ -161,6 +163,7 @@ DELIMITER ;
 
 
 
+-- Faculty Table Procedure
 DELIMITER $$
 CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_faculty_add_or_edit`(
     IN _id INT,
@@ -177,6 +180,61 @@ BEGIN
 
     SELECT ROW_COUNT() AS 'affectedRows';
 END$$
+
+DELIMITER ;
+
+
+
+-- Schedule Table Procedure
+DELIMITER $$
+CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_schedule_add_or_edit`(
+    IN _id INT,
+    IN _semester_id int,
+    IN _subject_id int,
+    IN _section_id varchar(10),
+    IN _faculty_id int,
+    IN _room_id varchar(10),
+    IN _day varchar(20),
+    IN _start_time time,
+    IN _end_time time,
+)
+BEGIN
+    INSERT INTO schedule (id, semester_id, subject_id, section_id, faculty_id, room_id, day, start_time, end_time)
+    VALUES (_id, _semester_id, _subject_id, _section_id, _faculty_id, _room_id, _day, _start_time, _end_time)
+    ON DUPLICATE KEY UPDATE
+        semester_id = VALUES(semester_id),
+        subject_id = VALUES(subject_id),
+        section_id = VALUES(section_id),
+        faculty_id = VALUES(faculty_id),
+        room_id = VALUES(room_id),
+        day = VALUES(day),
+        start_time = VALUES(start_time),
+        end_time = VALUES(end_time);
+
+    SELECT ROW_COUNT() AS 'affectedRows';
+END$$
+
+DELIMITER ;
+
+
+-- Department Table PROCEDURE
+
+DELIMITER $$
+CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_department_add_or_edit`(
+    IN _id INT,
+    IN _name VARCHAR(255),
+    IN _college VARCHAR(255),
+    IN _campus VARCHAR(255)
+)
+BEGIN
+    INSERT INTO department (id, name, college, campus)
+    VALUES (_id, _name, _college, _campus)
+    ON DUPLICATE KEY UPDATE
+        name = VALUES(name),
+        college = VALUES(college),
+        campus = VALUES(campus);
+
+    SELECT ROW_COUNT() AS 'affectedRows';
 END$$
 
 DELIMITER ;
