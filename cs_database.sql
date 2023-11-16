@@ -100,14 +100,14 @@ CREATE TABLE `student_schedule` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `subject` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `code` varchar(10) DEFAULT NULL,
+  `course_code` varchar(45) NOT NULL,
   `description` text,
   `lecture_units` int DEFAULT NULL,
   `laboratory_units` int DEFAULT NULL,
   `credit_units` int DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`course_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 CREATE TABLE `track` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -314,5 +314,47 @@ BEGIN
       name = VALUES(name);
       
     SELECT ROW_COUNT() AS 'affectedRows';
+END$$
+DELIMITER ;
+
+-- Semester Table PROCEDURE
+
+DELIMITER $$
+CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_semester_add_or_edit`(
+    IN _id INT,
+    IN _year INT,
+    IN _period VARCHAR(10)
+)
+BEGIN
+    INSERT INTO semester (id, year, period)
+    VALUES (_id, _year, _period)
+    ON DUPLICATE KEY UPDATE
+      year = VALUES(year),
+      period = VALUES(period);      
+    SELECT ROW_COUNT() AS 'affectedRows';
+END$$
+DELIMITER ;
+
+
+-- Subject Table PROCEDURE
+DELIMITER $$
+CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_subject_add_or_edit`(
+    IN _course_code VARCHAR(45),
+    IN _description TEXT,
+    IN _lecture_units INT,
+    IN _laboratory_units INT,
+    IN _credit_units INT
+)
+BEGIN
+    INSERT INTO subject (course_code, description, lecture_units, laboratory_units, credit_units)
+    VALUES (_course_code, _description, _lecture_units, _laboratory_units, _credit_units) 
+    ON DUPLICATE KEY UPDATE
+      description = VALUES(description),
+      lecture_units = VALUES(lecture_units),
+      laboratory_units = VALUES(laboratory_units),
+      credit_units = VALUES(credit_units);
+
+
+  SELECT ROW_COUNT() AS 'affectedRows';
 END$$
 DELIMITER ;
