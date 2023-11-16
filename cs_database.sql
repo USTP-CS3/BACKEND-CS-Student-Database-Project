@@ -279,6 +279,9 @@ DELIMITER ;
 
 -- Room Table PROCEDURE
 
+
+DELIMITER $$
+
 CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_room_add_or_edit`(
     IN _id VARCHAR(10),
     IN _building_id INT,
@@ -295,3 +298,21 @@ BEGIN
       
     SELECT ROW_COUNT() AS 'affectedRows';
 END$$
+DELIMITER ;
+
+-- Track Table PROCEDURE
+
+DELIMITER $$
+CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_track_add_or_edit`(
+    IN _id INT,
+    IN _name VARCHAR(255)
+)
+BEGIN
+    INSERT INTO track (id, name)
+    VALUES (_id, _name)
+    ON DUPLICATE KEY UPDATE
+      name = VALUES(name);
+      
+    SELECT ROW_COUNT() AS 'affectedRows';
+END$$
+DELIMITER ;
