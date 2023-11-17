@@ -4,7 +4,7 @@ USE csstudentdb;
 
 
 CREATE TABLE `building` (
-  `id` int NOT NULL,
+  `id` tinyint unsigned NOT NULL,
   `name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -17,10 +17,10 @@ CREATE TABLE `faculty` (
 
 CREATE TABLE `room` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `description` varchar(45) DEFAULT NULL,
-  `room_number` int DEFAULT NULL,
-  `floor_no` int DEFAULT NULL,
-  `building_id` int DEFAULT NULL,
+  `description` varchar(100) DEFAULT NULL,
+  `room_number` varchar(25) DEFAULT NULL,
+  `floor_no` tinyint unsigned DEFAULT NULL,
+  `building_id` tinyint unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_RoomBuilding` (`building_id`),
   CONSTRAINT `FK_RoomBuilding` FOREIGN KEY (`building_id`) REFERENCES `building` (`id`)
@@ -28,15 +28,15 @@ CREATE TABLE `room` (
 
 CREATE TABLE `schedule` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `subject_id` int DEFAULT NULL,
-  `faculty_id` int DEFAULT NULL,
+  `subject_id` int NOT NULL,
+  `faculty_id` int NOT NULL,
   `room_id` int DEFAULT NULL,
-  `section` varchar(10) DEFAULT NULL,
-  `start_time` time DEFAULT NULL,
-  `end_time` time DEFAULT NULL,
-  `weekday` varchar(20) DEFAULT NULL,
-  `semester` int DEFAULT NULL,
-  `year` int DEFAULT NULL,
+  `section` varchar(25) NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL,
+  `day` enum('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday') NOT NULL,
+  `semester` enum('1','2') NOT NULL,
+  `year` year NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_ScheduleSubject_idx` (`subject_id`),
   KEY `FK_ScheduleRoom_idx` (`room_id`),
@@ -48,23 +48,24 @@ CREATE TABLE `schedule` (
 
 CREATE TABLE `student` (
   `id` int NOT NULL,
-  `first_name` varchar(255) DEFAULT NULL,
-  `last_name` varchar(255) DEFAULT NULL,
-  `age` int DEFAULT NULL,
-  `gender` enum('Male','Female') DEFAULT NULL,
-  `year_level` int DEFAULT NULL,
-  `nationality` varchar(255) DEFAULT NULL,
-  `department` varchar(255) DEFAULT NULL,
-  `college` varchar(255) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(25) NOT NULL,
+  `middle_initial` varchar(1) DEFAULT NULL,
+  `age` tinyint unsigned NOT NULL,
+  `gender` enum('Male','Female') NOT NULL,
+  `year_level` int NOT NULL,
+  `nationality` varchar(45) NOT NULL,
+  `department` enum('CS','IT','DS','TCM') NOT NULL,
+  `college` enum('College of Information Technology and Computing') NOT NULL,
+  `email` varchar(50) NOT NULL,
   `contact_no` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `student_schedule` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `student_id` int DEFAULT NULL,
-  `schedule_id` int DEFAULT NULL,
+  `student_id` int NOT NULL,
+  `schedule_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_StudentScheduleProfile` (`student_id`),
   KEY `FK_ScheduleStudentProfile` (`schedule_id`),
@@ -74,14 +75,13 @@ CREATE TABLE `student_schedule` (
 
 CREATE TABLE `subject` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `course_code` varchar(45) NOT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `lecture_units` int DEFAULT NULL,
-  `lab_units` int DEFAULT NULL,
-  `credit_units` int DEFAULT NULL,
+  `course_code` varchar(25) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `lecture_units` tinyint unsigned NOT NULL,
+  `lab_units` tinyint unsigned NOT NULL,
+  `credit_units` tinyint unsigned NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 
 
 
@@ -93,34 +93,34 @@ CREATE TABLE `subject` (
 DELIMITER $$
 CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_student_add_or_edit`(
     IN _id INT,
-    IN _track_id INT,
-    IN _first_name VARCHAR(45),
-    IN _last_name VARCHAR(45),
+    IN _first_name VARCHAR(100),
+    IN _last_name VARCHAR(25),
+    IN _middle_initial VARCHAR(1),
+    IN _age TINYINT UNSIGNED,
+    IN _gender ENUM("Male", "Female"),
+    IN _year_level INT,
     IN _nationality VARCHAR(45),
-    IN _birthday DATE,
-    IN _gender ENUM('Male', 'Female'),
-    IN _email VARCHAR(100),
-    IN _phone VARCHAR(45),
-    IN _year_level int,
-    IN _age int,
-    IN _section_id VARCHAR(10)
+    IN _department ENUM("CS", "IT", "DS", "TCM"),
+    IN _college ENUM("College of Information Technology and Computing"),
+    IN _email VARCHAR(50),
+    IN _contact_no VARCHAR(20)
 )
 BEGIN
 -- Insert new student or update existing one
-    INSERT INTO Student (id, track_id, first_name, last_name, nationality, birthday, gender, email, phone, year_level, age, section_id)
-    VALUES (_id, _track_id, _first_name, _last_name, _nationality, _birthday, _gender, _email, _phone, _year_level, _age, _section_id)
+    INSERT INTO Student (id, first_name, last_name, middle_initial, age, gender, year_level, nationality, department, college, email, contact_no)
+    VALUES (_id, _first_name, _last_name, _middle_initial, _age, _gender, _year_level, _nationality, _department, _college, _email, _contact_no)
     ON DUPLICATE KEY UPDATE
-        track_id = VALUES(track_id),
         first_name = VALUES(first_name),
         last_name = VALUES(last_name),
-        nationality = VALUES(nationality),
-        birthday = VALUES(birthday),
-        gender = VALUES(gender),
-        email = VALUES(email),
-        phone = VALUES(phone),
-        year_level = VALUES(year_level),
+        middle_initial = VALUES(middle_initial),
         age = VALUES(age),
-        section_id = VALUES(section_id);
+        gender = VALUES(gender),
+        year_level = VALUES(year_level),
+        nationality = VALUES(nationality),
+        department = VALUES(department),
+        college = VALUES(college),
+        email = VALUES(email),
+        contact_no = VALUES(contact_no);
 
     SELECT ROW_COUNT() AS 'affectedRows';
 END$$
@@ -132,15 +132,13 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_faculty_add_or_edit`(
     IN _id INT,
-    IN _first_name VARCHAR(45),
-    IN _last_name VARCHAR(45)
+    IN _name VARCHAR(255)
 )
 BEGIN
-    INSERT INTO faculty (id, first_name, last_name)
-    VALUES (_id, _first_name, _last_name)
+    INSERT INTO faculty (id, name)
+    VALUES (_id, _name)
     ON DUPLICATE KEY UPDATE
-        first_name = VALUES(first_name),
-        last_name = VALUES(last_name);
+        name = VALUES(name);
 
 
     SELECT ROW_COUNT() AS 'affectedRows';
@@ -154,79 +152,37 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_schedule_add_or_edit`(
     IN _id INT,
-    IN _semester_id int,
     IN _subject_id int,
-    IN _section_id varchar(10),
     IN _faculty_id int,
-    IN _room_id varchar(10),
-    IN _day varchar(20),
+    IN _room_id int,
+    IN _section varchar(25),
     IN _start_time time,
     IN _end_time time,
+    IN _day enum('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'),
+    IN _semester enum('1','2'),
+    IN _year year(4)
 )
 BEGIN
-    INSERT INTO schedule (id, semester_id, subject_id, section_id, faculty_id, room_id, day, start_time, end_time)
-    VALUES (_id, _semester_id, _subject_id, _section_id, _faculty_id, _room_id, _day, _start_time, _end_time)
+    INSERT INTO schedule (id, subject_id, faculty_id, room_id, section, start_time, end_time, day, semester, year)
+    VALUES (_id, _subject_id, _faculty_id, _room_id, _section, _start_time, _end_time, _day, _semester, _year)
     ON DUPLICATE KEY UPDATE
-        semester_id = VALUES(semester_id),
         subject_id = VALUES(subject_id),
-        section_id = VALUES(section_id),
         faculty_id = VALUES(faculty_id),
         room_id = VALUES(room_id),
-        day = VALUES(day),
+        section = VALUES(section),
         start_time = VALUES(start_time),
-        end_time = VALUES(end_time);
-
+        end_time = VALUES(end_time),
+        day = VALUES(day),
+        semester = VALUES(semester),
+        year = VALUES(year);
     SELECT ROW_COUNT() AS 'affectedRows';
 END$$
-
-DELIMITER ;
-
-
--- Department Table PROCEDURE
-
-DELIMITER $$
-CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_department_add_or_edit`(
-    IN _id INT,
-    IN _name VARCHAR(255),
-    IN _college VARCHAR(255),
-    IN _campus VARCHAR(255)
-)
-BEGIN
-    INSERT INTO department (id, name, college, campus)
-    VALUES (_id, _name, _college, _campus)
-    ON DUPLICATE KEY UPDATE
-        name = VALUES(name),
-        college = VALUES(college),
-        campus = VALUES(campus);
-
-    SELECT ROW_COUNT() AS 'affectedRows';
-END$$
-
-DELIMITER ;
-
-
--- Section Table PROCEDURE
-DELIMITER $$
-CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_section_add_or_edit`(
-    IN _id VARCHAR(10),
-    IN _department_id INT
-)
-BEGIN
-    INSERT INTO section (id, department_id)
-    VALUES (_id, _department_id)
-    ON DUPLICATE KEY UPDATE
-      department_id = VALUES(department_id);
-
-    SELECT ROW_COUNT() AS 'affectedRows';
-END$$
-
-DELIMITER ;
 
 
 -- Building Table PROCEDURE
 DELIMITER $$
 CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_building_add_or_edit`(
-    IN _id INT,
+    IN _id TINYINT(1),
     IN _name VARCHAR(255)
 )
 BEGIN
@@ -248,78 +204,63 @@ DELIMITER ;
 DELIMITER $$
 
 CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_room_add_or_edit`(
-    IN _id VARCHAR(10),
-    IN _building_id INT,
-    IN _floor INT,
-    IN _number INT
+    IN _id int,
+    IN _description VARCHAR(255),
+    IN _room_number VARCHAR(25),
+    IN _floor_no TINYINT(1),
+    IN _building_id TINYINT(1)
 )
 BEGIN
-    INSERT INTO building (id, building_id, floor, number)
-    VALUES (_id, _building_id, _floor, _number)
+    INSERT INTO building (id, description, room_number, floor_no, building_id)
+    VALUES (_id, _description, _room_number, _floor_no, _building_id)
     ON DUPLICATE KEY UPDATE
-      building_id = VALUES(building_id),
-      floor = VALUES(floor),
-      number = VALUES(number);
-      
+      description = VALUES(description),
+      room_number = VALUES(room_number),
+      floor_no = VALUES(floor_no),
+      building_id = VALUES(building_id);      
     SELECT ROW_COUNT() AS 'affectedRows';
 END$$
-DELIMITER ;
-
--- Track Table PROCEDURE
-
 DELIMITER $$
-CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_track_add_or_edit`(
-    IN _id INT,
-    IN _name VARCHAR(255)
-)
-BEGIN
-    INSERT INTO track (id, name)
-    VALUES (_id, _name)
-    ON DUPLICATE KEY UPDATE
-      name = VALUES(name);
-      
-    SELECT ROW_COUNT() AS 'affectedRows';
-END$$
-DELIMITER ;
-
--- Semester Table PROCEDURE
-
-DELIMITER $$
-CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_semester_add_or_edit`(
-    IN _id INT,
-    IN _year INT,
-    IN _period VARCHAR(10)
-)
-BEGIN
-    INSERT INTO semester (id, year, period)
-    VALUES (_id, _year, _period)
-    ON DUPLICATE KEY UPDATE
-      year = VALUES(year),
-      period = VALUES(period);      
-    SELECT ROW_COUNT() AS 'affectedRows';
-END$$
-DELIMITER ;
-
 
 -- Subject Table PROCEDURE
 DELIMITER $$
 CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_subject_add_or_edit`(
-    IN _course_code VARCHAR(45),
-    IN _description TEXT,
-    IN _lecture_units INT,
-    IN _laboratory_units INT,
-    IN _credit_units INT
+    IN _id INT,
+    IN _course_code VARCHAR(25),
+    IN _description VARCHAR(255),
+    IN _lecture_units TINYINT(1),
+    IN _lab_units TINYINT(1),
+    IN _credit_units TINYINT(1)
 )
 BEGIN
-    INSERT INTO subject (course_code, description, lecture_units, laboratory_units, credit_units)
-    VALUES (_course_code, _description, _lecture_units, _laboratory_units, _credit_units) 
+    INSERT INTO subject (id, course_code, description, lecture_units, lab_units, credit_units)
+    VALUES (_id, _course_code, _description, _lecture_units, _lab_units, _credit_units) 
     ON DUPLICATE KEY UPDATE
+      course_code = VALUES(course_code),
       description = VALUES(description),
       lecture_units = VALUES(lecture_units),
-      laboratory_units = VALUES(laboratory_units),
+      lab_units = VALUES(lab_units),
       credit_units = VALUES(credit_units);
 
 
   SELECT ROW_COUNT() AS 'affectedRows';
 END$$
 DELIMITER ;
+
+
+-- Student Schedule Table PROCEDURE
+DELIMITER $$
+
+CREATE DEFINER=`{{MYSQL_USER}}`@`{{MYSQL_HOST}}` PROCEDURE `usp_student_schedule_add_or_edit`(
+    IN _id int,
+    IN _student_id int,
+    IN _schedule_id int
+)
+BEGIN
+    INSERT INTO student_schedule (id, student_id, schedule_id)
+    VALUES (_id, _student_id, _schedule_id)
+    ON DUPLICATE KEY UPDATE
+      student_id = VALUES(student_id),
+      schedule_id = VALUES(schedule_id);      
+    SELECT ROW_COUNT() AS 'affectedRows';
+END$$
