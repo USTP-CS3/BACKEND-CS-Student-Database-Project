@@ -31,17 +31,17 @@ const addOrEditStudent = async (obj, studentId = 0) => {
   'CALL usp_student_add_or_edit(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
   [
    studentId,
-   obj.track_id,
    obj.first_name,
    obj.last_name,
-   obj.nationality,
-   obj.birthday,
-   obj.sex,
-   obj.email,
-   obj.phone,
-   obj.year_level,
+   obj.middle_initial,
    obj.age,
-   obj.section_id,
+   obj.gender,
+   obj.year_level,
+   obj.nationality,
+   obj.department,
+   obj.college,
+   obj.email,
+   obj.contact_no,
   ]
  );
 

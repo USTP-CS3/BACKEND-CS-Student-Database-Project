@@ -32,7 +32,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
- await service.addOrEditFaculty(req.body, req.body.id);
+ await service.addOrEditFaculty(req.body);
  res.status(201).send('Faculty Record Added Successfully');
 });
 

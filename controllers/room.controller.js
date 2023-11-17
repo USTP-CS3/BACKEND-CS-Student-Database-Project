@@ -30,7 +30,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
- await service.addOrEditRoom(req.body, req.body.id);
+ await service.addOrEditRoom(req.body);
  res.status(201).send('Room Record Added Successfully');
 });
 

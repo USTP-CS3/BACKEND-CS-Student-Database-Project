@@ -6,6 +6,7 @@ import scheduleRoutes from './controllers/schedule.controller.js';
 import buildingRoutes from './controllers/building.controller.js';
 import roomRoutes from './controllers/room.controller.js';
 import subjectRoutes from './controllers/subject.controller.js';
+import studentScheduleRoutes from './controllers/student_schedule.controller.js';
 import 'express-async-errors';
 
 const app = express();
@@ -18,6 +19,7 @@ app.use('/api/schedules', scheduleRoutes);
 app.use('/api/buildings', buildingRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/subjects', subjectRoutes);
+app.use('/api/student-schedules', studentScheduleRoutes);
 
 app.use((err, req, res, next) => {
  console.log(err);

@@ -19,6 +19,16 @@ router.get('/:id', async (req, res) => {
  }
 });
 
+router.delete('/:id', async (req, res) => {
+ const affectedRows = await service.deleteBuilding(req.params.id);
+
+ if (affectedRows == 0) {
+  res.status(404).json('No Building Found with the given ID ' + req.params.id);
+ } else {
+  res.send('Building Record Deleted Successfully');
+ }
+});
+
 router.post('/', async (req, res) => {
  await service.addOrEditBuilding(req.body, req.body.id);
  res.status(201).send('Building Record Added Successfully');

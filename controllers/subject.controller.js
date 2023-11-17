@@ -30,7 +30,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
- await service.addOrEditSubject(req.body, req.body.course_code);
+ await service.addOrEditSubject(req.body);
  res.status(201).send('Subject Record Added Successfully');
 });
 

@@ -25,17 +25,18 @@ const deleteSchedule = async (scheduleId) => {
 
 const addOrEditSchedule = async (obj, scheduleId = 0) => {
  const [[[{ affectedRows }]]] = await db.query(
-  'CALL usp_schedule_add_or_edit(?,?,?,?,?,?,?,?,?)',
+  'CALL usp_schedule_add_or_edit(?,?,?,?,?,?,?,?,?,?)',
   [
    scheduleId,
-   obj.semester_id,
    obj.subject_id,
-   obj.section_id,
    obj.faculty_id,
    obj.room_id,
-   obj.day,
+   obj.section,
    obj.start_time,
    obj.end_time,
+   obj.day,
+   obj.semester,
+   obj.year,
   ]
  );
 

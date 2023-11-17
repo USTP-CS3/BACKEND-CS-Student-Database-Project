@@ -22,8 +22,8 @@ const deleteRoom = async (roomId) => {
 
 const addOrEditRoom = async (obj, roomId = 0) => {
  const [[[{ affectedRows }]]] = await db.query(
-  'CALL usp_room_add_or_edit(?,?,?,?)',
-  [roomId, obj.building_id, obj.floor, obj.number]
+  'CALL usp_room_add_or_edit(?,?,?,?,?)',
+  [roomId, obj.description, obj.room_number, obj.floor_no, obj.building_id]
  );
 
  return affectedRows;
