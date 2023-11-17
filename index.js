@@ -8,10 +8,16 @@ import roomRoutes from './controllers/room.controller.js';
 import subjectRoutes from './controllers/subject.controller.js';
 import studentScheduleRoutes from './controllers/student_schedule.controller.js';
 import 'express-async-errors';
+import cors from 'cors';
 
 const app = express();
 
+const corsOptions = {
+ origin: 'http://localhost:3000',
+};
+
 // Middleware
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use('/api/students', studentRoutes);
 app.use('/api/faculties', facultyRoutes);

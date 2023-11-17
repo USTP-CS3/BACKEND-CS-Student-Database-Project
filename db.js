@@ -10,6 +10,7 @@ const mysqlPool = mysql.createPool({
  user: process.env.MYSQL_USER,
  password: process.env.MYSQL_PASSWORD,
  database: process.env.MYSQL_DATABASE,
+ dialect: 'mysql',
 });
 
 async function executeQuery(sql, values) {
@@ -24,10 +25,6 @@ async function executeQuery(sql, values) {
   if (connection) connection.release();
  }
 }
-
-// // Export the pool and executeQuery function
-// module.exports = mysqlPool;
-// module.exports.executeQuery = executeQuery;
 
 export default mysqlPool;
 export { executeQuery };
